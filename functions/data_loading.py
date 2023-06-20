@@ -4,6 +4,26 @@ import numpy as np
 import networkx as nx
 
 
+def scale_edge_list(df):
+
+    source_targer_values = df.iloc[:,:2].values
+    edge_weights = df.iloc[:,2].values.reshape(-1,1)
+
+    unique_values = sorted(np.unique(source_targer_values))
+
+    unique_index = 0
+
+    for unique_value in unique_values:
+        source_targer_values = np.where(source_targer_values == unique_value, unique_index, source_targer_values)
+        unique_index += 1
+    
+    # concat the scaled values with the edge weights
+    scaled_edge_list = np.concatenate((source_targer_values, edge_weights), axis=1)   
+
+    return scaled_edge_list
+
+
+
 #load edgelist
 def load_net_from_edge_list(path, sep = ',', header = None, names = ['source', 'target', 'weight'], has_edge_weights = True):
     if has_edge_weights:
@@ -12,45 +32,18 @@ def load_net_from_edge_list(path, sep = ',', header = None, names = ['source', '
         df = pd.read_csv(path, sep = sep, header = header, names = names[:2])
         df['weight'] = 1.0
 
+    scaled_edge_list = scale_edge_list(df)
 
-    # initial label -> new label (id)
-    node_id_mapping = {}
-
-    initial_node_id = 0
 
     G = nx.Graph()
 
 
-    for edge in df.values:
-        source = edge[0]
-        source_id = None
-
-        target = edge[1]
-        target_id = None
-
+    for edge in scaled_edge_list:
+        source = int(edge[0])
+        target = int(edge[1])
         weight = edge[2]
 
-        # source mapping
-        if source not in node_id_mapping:
-            node_id_mapping[source] = initial_node_id
-            source_id = initial_node_id
 
-            G.add_node(source_id, initial_label = source)
-
-            initial_node_id += 1
-        else:
-            source_id = node_id_mapping[source]
-
-        # target mapping
-        if target not in node_id_mapping:
-            node_id_mapping[target] = initial_node_id
-            target_id = initial_node_id
-            G.add_node(target_id, initial_label = target)
-
-            initial_node_id += 1
-        else:
-            target_id = node_id_mapping[target]
-
-        G.add_edge(source_id, target_id, weight = weight)
+        G.add_edge(source, target, weight = weight)
     
     return G
