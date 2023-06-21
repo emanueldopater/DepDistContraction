@@ -39,8 +39,10 @@ def load_net_from_edge_list(path, sep = ',', header = None, names = ['source', '
 
 
     for edge in scaled_edge_list:
+        #print(edge)
         source = int(edge[0])
         target = int(edge[1])
+
         weight = edge[2]
 
 
