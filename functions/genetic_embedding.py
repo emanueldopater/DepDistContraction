@@ -229,28 +229,73 @@ class GeneticEmbeddingV3(GeneticEmbedding):
             num_neigh = self.network.degree[current_node]
             prob_of_change = (1 / (num_neigh + 1))
 
-            if random.random() <  prob_of_change:
+            #if random.random() <  prob_of_change:
 
-                # Step2: Choose neighbour to change embedding
+            # Step2: Choose neighbour to change embedding
 
-                # get precomputed cumulative probability
-                cumulative_probs = self.precomputed_dep_probs[current_node]
+            # get precomputed cumulative probability
+            cumulative_probs = self.precomputed_dep_probs[current_node]
 
-                random_number = random.random()
-                chosen_neigh = None
+            random_number = random.random()
+            chosen_neigh = None
 
-                for i, cumulative_prob in enumerate(cumulative_probs):
-                    if random_number <= cumulative_prob:
-                        chosen_neigh = i
-                        break
-                # Step3: Change embedding 
-                # Instead 1.0 as std of perturberation we use self.perturberation_std
+            for i, cumulative_prob in enumerate(cumulative_probs):
+                if random_number <= cumulative_prob:
+                    chosen_neigh = i
+                    break
 
-                dependency_on_neigh = self.dependency_matrix[current_node][chosen_neigh]
 
-                step = self.max_step_portion * dependency_on_neigh
-                neigh_emb = self.embedding_current_state[chosen_neigh]
+            dependency_on_neigh = self.dependency_matrix[current_node][chosen_neigh]
 
-                current_node_emb = self.embedding_current_state[current_node]
-                
-                self.embedding_next_state[current_node] += (neigh_emb - current_node_emb) * step
+            step = self.max_step_portion * dependency_on_neigh
+            neigh_emb = self.embedding_current_state[chosen_neigh]
+            current_node_emb = self.embedding_current_state[current_node]
+            print( " Neigh emb: ", neigh_emb)
+            print( " Current emb: ", current_node_emb)
+            print( " Step: ", step)
+            print( " Diff: ", neigh_emb - current_node_emb)
+            print( " Diff * step: ", (neigh_emb - current_node_emb) * step)
+            print()
+            self.embedding_next_state[current_node] += (neigh_emb - current_node_emb) * step
+
+class GeneticEmbeddingCenter(GeneticEmbedding):
+    """
+    This version is inspired by "center of gravity". It is similar to the third version, but instead of moving towards
+    the one randomly chosen neighbour, we move towards the center of gravity of all neighbours. The "strength" of each node is its
+    dependency.
+
+
+    """
+
+    def __init__(self, network : nx.Graph, dependency_matrix : np.ndarray, embedding_dim : int):    
+        super().__init__(network, dependency_matrix, embedding_dim)
+
+
+
+    def run(self,iterations):
+        for i in range(iterations):
+            self.iteration()
+
+            # update embedding
+            self.embedding_current_state = self.embedding_next_state.copy()
+
+        # return embeddings
+        return self.embedding_current_state
+
+    def iteration(self):
+        for current_node in self.network.nodes:
+
+            # calculate center of gravity
+            total_direction = 0.0
+            current_node_possition = self.embedding_current_state[current_node]
+
+            for neigh_node in self.network.nodes():
+
+                dependency_on_neigh = self.dependency_matrix[current_node][neigh_node]
+                neigh_position = self.embedding_current_state[neigh_node]
+
+                direction = neigh_position - current_node_possition
+                total_direction += direction * dependency_on_neigh
+            
+
+            self.embedding_next_state[current_node] += total_direction
