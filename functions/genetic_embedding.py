@@ -250,12 +250,7 @@ class GeneticEmbeddingV3(GeneticEmbedding):
             step = self.max_step_portion * dependency_on_neigh
             neigh_emb = self.embedding_current_state[chosen_neigh]
             current_node_emb = self.embedding_current_state[current_node]
-            print( " Neigh emb: ", neigh_emb)
-            print( " Current emb: ", current_node_emb)
-            print( " Step: ", step)
-            print( " Diff: ", neigh_emb - current_node_emb)
-            print( " Diff * step: ", (neigh_emb - current_node_emb) * step)
-            print()
+
             self.embedding_next_state[current_node] += (neigh_emb - current_node_emb) * step
 
 class GeneticEmbeddingCenter(GeneticEmbedding):
