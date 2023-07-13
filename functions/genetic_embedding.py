@@ -898,12 +898,12 @@ class DependencyEmebeddingDocument_v13_07_2023(GeneticEmbedding):
                     break
 
             
-            if self.dependency_matrix[X][Y] == 0.0: continue
+            #if self.dependency_matrix[X][Y] == 0.0: continue
             
             D_x_y = max( min(self.dependency_matrix[X][Y], self.MaxD) , self.MinD)
             D_y_x = max( min(self.dependency_matrix[Y][X], self.MaxD) , self.MinD)
 
-            M = self.embedding_current_state[X] - self.embedding_current_state[Y]
+            M = self.embedding_current_state[Y] - self.embedding_current_state[X]
             norm_M = np.linalg.norm(M)
 
             M1 = M / norm_M            
