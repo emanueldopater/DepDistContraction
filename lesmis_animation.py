@@ -7,9 +7,9 @@ karate_network = load_net_from_edge_list(path='datasets/lesmis_edges.csv', sep='
 
 dep_matrix = dependency_matrix(karate_network)
 
-genetic_embedding = GeneticEmbeddingV3(network=karate_network, dependency_matrix=dep_matrix, embedding_dim=2, max_step_portion=0.1)
+genetic_embedding = GeneticEmbeddingAbsLog(network=karate_network, dependency_matrix=dep_matrix, embedding_dim=2, max_step_portion=0.1)
 
-iterations = 500
+iterations = 3000
 list_of_embs = []
 for i in range(iterations):
     embs = genetic_embedding.run(iterations=1)

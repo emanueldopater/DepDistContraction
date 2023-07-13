@@ -63,6 +63,8 @@ def dependency_matrix(G):
   for x in G.nodes:
     for y in G.nodes:
 
+      #if not G.has_edge(x,y): continue
+
       if x == y: continue
 
       weight_xy = get_edge_weight(G, x, y)
