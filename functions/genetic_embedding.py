@@ -593,7 +593,6 @@ class GeneticEmbeddingAbsLog(GeneticEmbedding):
 
             self.embedding_next_state[current_node] += dir_vector * repulsion * step 
 
-
 class GeneticEmbeddingThroughPairs(GeneticEmbedding):
     """
     This is the third version of algorithm. It is similar to the first 2 version with first 2 steps, but the third step is different:
@@ -904,13 +903,18 @@ class DependencyEmebeddingDocument_v13_07_2023(GeneticEmbedding):
             D_y_x = max( min(self.dependency_matrix[Y][X], self.MaxD) , self.MinD)
 
             M = self.embedding_current_state[Y] - self.embedding_current_state[X]
-            norm_M = np.linalg.norm(M)
 
+            #norm_M = np.linalg.norm(M)
+            norm_M = math.sqrt(M[0]**2 + M[1]**2)
             M1 = M / norm_M            
-            
+
+            q = D_x_y * max((D_x_y + D_y_x) / 2, self.MinDelta) 
+
+
+
             # Situace1 (weak Dependency)
             if (D_x_y + D_y_x) < 1:
-                q = D_x_y * max(1 - D_x_y - D_y_x, self.MinDelta)
+                
 
                 if norm_M == self.MinWeakDist:
                     self.embedding_next_state[X] = self.embedding_current_state[X]
@@ -923,7 +927,6 @@ class DependencyEmebeddingDocument_v13_07_2023(GeneticEmbedding):
             
             #  D_x_y + D_y_x >= 1:
             else:
-                q = D_x_y * max(abs(D_x_y - D_y_x), self.MinDelta)
 
                 if norm_M == self.MinStrongDist:
                     self.embedding_next_state[X] = self.embedding_current_state[X]
@@ -933,4 +936,4 @@ class DependencyEmebeddingDocument_v13_07_2023(GeneticEmbedding):
 
                 #norm_M > self.MinStrongDist
                 else:
-                    self.embedding_next_state[X] = self.embedding_current_state[X] + q * (norm_M - self.MinStrongDist) * M1            
+                    self.embedding_next_state[X] = self.embedding_current_state[X] + q * (norm_M - self.MinStrongDist) * M1       

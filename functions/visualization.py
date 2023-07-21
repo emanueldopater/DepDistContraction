@@ -27,7 +27,7 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
-def visualize_network_animation(G: nx.Graph, embs_list: list, output_path: str, scatter_size_offset: int = 2, scatter_size_degree_power: int = 2, fps : int = 30):
+def visualize_network_animation(G: nx.Graph, embs_list: list, scatter_size_offset: int = 2, scatter_size_degree_power: int = 2, fps : int = 30):
     fig, ax = plt.subplots()
 
     # Create empty scatter and plot objects
@@ -104,4 +104,4 @@ def visualize_network_gif(G: nx.Graph, embs_list: list, output_path: str, scatte
     animation = FuncAnimation(fig, update, frames=num_iterations, interval=animation_fps)
 
     # Show the animation
-    animation.save(output_path, writer='pillow')
+    animation.save(output_path, writer='ffmpeg')
