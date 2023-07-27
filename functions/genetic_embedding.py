@@ -191,7 +191,6 @@ class GeneticEmbeddingV2(GeneticEmbedding):
 
                 self.embedding_next_state[current_node] = tar_emb + perturberation
 
-
 class GeneticEmbeddingV3(GeneticEmbedding):
     """
     This is the third version of algorithm. It is similar to the first 2 version with first 2 steps, but the third step is different:
@@ -518,7 +517,6 @@ class GeneticEmbeddingV3Abs(GeneticEmbedding):
 
             self.embedding_next_state[current_node] += (neigh_emb - current_node_emb) * step
 
-
 class GeneticEmbeddingAbsLog(GeneticEmbedding):
     """
     This is the third version of algorithm. It is similar to the first 2 version with first 2 steps, but the third step is different:
@@ -558,7 +556,7 @@ class GeneticEmbeddingAbsLog(GeneticEmbedding):
 
             # Step1: Decide whether node will change its embedding or not
             num_neigh = self.network.degree[current_node]
-            prob_of_change = (1 / (num_neigh + 1))
+            #prob_of_change = (1 / (num_neigh + 1))
 
             #if random.random() <  prob_of_change:
 
@@ -937,3 +935,358 @@ class DependencyEmebeddingDocument_v13_07_2023(GeneticEmbedding):
                 #norm_M > self.MinStrongDist
                 else:
                     self.embedding_next_state[X] = self.embedding_current_state[X] + q * (norm_M - self.MinStrongDist) * M1       
+
+class DependencyEmebeddingDocument_v23_07_2023(GeneticEmbedding):
+    """
+    This is the third version of algorithm. It is similar to the first 2 version with first 2 steps, but the third step is different:
+    Step 3: The node will move towards the chosen neighbour the following way:
+        - parameter max_step_portion determines maximum portion of possible step towards the chosen neighbour. So the value 0.5 means that 
+        node can be moved maximally by half (or 50%) of the distance towards the chosen neighbour. 
+        - The  step is determined by the dependency on the chosen neighbour. The higher dependency, the bigger step towards the chosen neighbour.
+
+        So the amount of step towards the chosen neighbour is determined by max_step_portion * dependency. 
+        Simply:
+            step = max_step_portion * dependency
+
+            new_embedding += (neigh_emb - current_node_emb) * step
+
+
+    """
+
+    def __init__( self, network : nx.Graph,
+                  dependency_matrix : np.ndarray,
+                  embedding_dim : int,
+                  MinDist = 1.0
+                ):    
+        super().__init__(network, dependency_matrix, embedding_dim)
+
+        self.MinDist = MinDist
+        
+
+    def iteration(self):
+        
+        for X in self.network.nodes:
+            
+            Y = -1
+            while True:
+
+                Y = random.randint(0,len(self.network.nodes)-1)
+                if Y != X:
+                    break
+
+            
+            #if self.dependency_matrix[X][Y] == 0.0: continue
+            
+            M = self.embedding_current_state[Y] - self.embedding_current_state[X]
+
+            norm_M = np.linalg.norm(M)
+            M1 = M / norm_M            
+
+            D_x_y = self.dependency_matrix[X][Y]
+            D_y_x = self.dependency_matrix[Y][X]
+            q = D_x_y * ((D_x_y + D_y_x) / 2)
+                
+
+            if norm_M == self.MinDist:
+                self.embedding_next_state[X] = self.embedding_current_state[X]
+
+            elif norm_M < self.MinDist:
+                self.embedding_next_state[X] = self.embedding_current_state[Y] - self.MinDist * M1
+
+            else:
+                self.embedding_next_state[X] = self.embedding_current_state[X] + q * (norm_M - self.MinDist) * M1
+
+class DependencyEmebeddingDocument_v23_07_2023_Power(GeneticEmbedding):
+    """
+    This is the third version of algorithm. It is similar to the first 2 version with first 2 steps, but the third step is different:
+    Step 3: The node will move towards the chosen neighbour the following way:
+        - parameter max_step_portion determines maximum portion of possible step towards the chosen neighbour. So the value 0.5 means that 
+        node can be moved maximally by half (or 50%) of the distance towards the chosen neighbour. 
+        - The  step is determined by the dependency on the chosen neighbour. The higher dependency, the bigger step towards the chosen neighbour.
+
+        So the amount of step towards the chosen neighbour is determined by max_step_portion * dependency. 
+        Simply:
+            step = max_step_portion * dependency
+
+            new_embedding += (neigh_emb - current_node_emb) * step
+
+
+    """
+
+    def __init__( self, network : nx.Graph,
+                  dependency_matrix : np.ndarray,
+                  embedding_dim : int,
+                  MinDist :float = 1.0,
+                  k : int = 2
+
+                ):    
+        super().__init__(network, dependency_matrix, embedding_dim)
+
+        self.MinDist = MinDist
+        self.k = k
+        
+
+    def iteration(self):
+        
+        for X in self.network.nodes:
+            
+            Y = -1
+            while True:
+
+                Y = random.randint(0,len(self.network.nodes)-1)
+                if Y != X:
+                    break
+
+
+
+            
+            M = self.embedding_current_state[Y] - self.embedding_current_state[X]
+
+            norm_M = np.linalg.norm(M)
+            M1 = M / norm_M    
+
+                        
+            # if self.dependency_matrix[X][Y] == 0.0:
+            #     self.embedding_next_state[X] = self.embedding_current_state[X] - 1.0 *  self.MinDist * M1 
+            #     continue       
+
+            D_x_y = self.dependency_matrix[X][Y]
+            D_y_x = self.dependency_matrix[Y][X]
+
+            q = (D_x_y) * ((D_x_y + D_y_x) / 2)
+                
+
+            if norm_M == self.MinDist:
+                self.embedding_next_state[X] = self.embedding_current_state[X]
+
+            elif norm_M < self.MinDist:
+                self.embedding_next_state[X] = self.embedding_current_state[Y] - self.MinDist * M1
+
+            else:
+                self.embedding_next_state[X] = self.embedding_current_state[X] + q * (norm_M - self.MinDist) * M1
+
+class GeneticEmbeddingAbsLogEachNeigh(GeneticEmbedding):
+    """
+    This is the third version of algorithm. It is similar to the first 2 version with first 2 steps, but the third step is different:
+    Step 3: The node will move towards the chosen neighbour the following way:
+        - parameter max_step_portion determines maximum portion of possible step towards the chosen neighbour. So the value 0.5 means that 
+        node can be moved maximally by half (or 50%) of the distance towards the chosen neighbour. 
+        - The  step is determined by the dependency on the chosen neighbour. The higher dependency, the bigger step towards the chosen neighbour.
+
+        So the amount of step towards the chosen neighbour is determined by max_step_portion * dependency. 
+        Simply:
+            step = max_step_portion * dependency
+
+            new_embedding += (neigh_emb - current_node_emb) * step
+
+
+    """
+
+    def __init__(self, network : nx.Graph, dependency_matrix : np.ndarray, embedding_dim : int, max_step_portion : float = 0.5):    
+        super().__init__(network, dependency_matrix, embedding_dim)
+
+        self.max_step_portion = max_step_portion
+
+
+    def run(self,iterations):
+        for i in range(iterations):
+            self.iteration()
+
+            # update embedding
+            self.embedding_current_state = self.embedding_next_state.copy()
+
+        # return embeddings
+        return self.embedding_current_state
+
+    def iteration(self):
+
+        for X in self.network.nodes:
+            
+            Y = -1
+            while True:
+
+                Y = random.randint(0,len(self.network.nodes)-1)
+                if Y != X:
+                    break
+
+
+
+            dependency_on_neigh = self.dependency_matrix[X][Y]
+
+            dependency_reverse = self.dependency_matrix[Y][X]
+
+            abs_diff = abs(dependency_on_neigh - dependency_reverse)
+
+            step = self.max_step_portion * dependency_on_neigh * ((abs_diff+1)/2)
+            
+            neigh_emb = self.embedding_current_state[Y]
+            current_node_emb = self.embedding_current_state[X]
+            dir_vector = (neigh_emb - current_node_emb)
+            dist_of_nodes = math.dist(current_node_emb,neigh_emb)
+
+            repulsion = np.arctan(10* dist_of_nodes - 0.01)
+
+            self.embedding_next_state[X] += dir_vector * repulsion * step 
+
+class DependencyEmebeddingDocument_v23_07_2023_ProbBasedOnDep(GeneticEmbedding):
+    """
+    This is the third version of algorithm. It is similar to the first 2 version with first 2 steps, but the third step is different:
+    Step 3: The node will move towards the chosen neighbour the following way:
+        - parameter max_step_portion determines maximum portion of possible step towards the chosen neighbour. So the value 0.5 means that 
+        node can be moved maximally by half (or 50%) of the distance towards the chosen neighbour. 
+        - The  step is determined by the dependency on the chosen neighbour. The higher dependency, the bigger step towards the chosen neighbour.
+
+        So the amount of step towards the chosen neighbour is determined by max_step_portion * dependency. 
+        Simply:
+            step = max_step_portion * dependency
+
+            new_embedding += (neigh_emb - current_node_emb) * step
+
+
+    """
+
+    def __init__( self, network : nx.Graph,
+                  dependency_matrix : np.ndarray,
+                  embedding_dim : int,
+                  MinDist :float = 1.0,
+                  k : int = 2
+
+                ):    
+        super().__init__(network, dependency_matrix, embedding_dim)
+
+        self.MinDist = MinDist
+        self.k = k
+        
+
+    def iteration(self):
+        
+        for X in self.network.nodes:
+            
+            cumulative_probs = self.precomputed_dep_probs[X]
+
+            random_number = random.random()
+            Y = None
+
+            for i, cumulative_prob in enumerate(cumulative_probs):
+                if random_number <= cumulative_prob:
+                    Y = i
+                    if Y == X:
+                        print("Vybrany rovnaky uzol")
+                    break
+            # Y = -1
+            # while True:
+
+            #     Y = random.randint(0,len(self.network.nodes)-1)
+            #     if Y != X:
+            #         break
+
+            M = self.embedding_current_state[Y] - self.embedding_current_state[X]
+
+            norm_M = np.linalg.norm(M)
+
+            if norm_M == 0.0: continue
+
+            M1 = M / norm_M    
+
+
+                        
+            # if self.dependency_matrix[X][Y] == 0.0:
+            #     self.embedding_next_state[X] = self.embedding_current_state[X] - 1.0 *  self.MinDist * M1 
+            #     continue       
+
+            D_x_y = self.dependency_matrix[X][Y]
+            D_y_x = self.dependency_matrix[Y][X]
+
+            q = (D_x_y) * ((D_x_y + D_y_x) / 2)
+                
+            dist_of_nodes = math.dist(self.embedding_current_state[X],self.embedding_current_state[Y])
+
+            repulsion = np.arctan(10* dist_of_nodes - 0.01)
+            
+            if norm_M == self.MinDist:
+                self.embedding_next_state[X] = self.embedding_current_state[X]
+
+            elif norm_M < self.MinDist:
+                self.embedding_next_state[X] = self.embedding_current_state[Y] - self.MinDist * M1 * repulsion
+
+            else:
+                self.embedding_next_state[X] = self.embedding_current_state[X] + q * (norm_M - self.MinDist) * M1 * repulsion
+
+class DependencyEmebeddingDocument_v27_07_2023(GeneticEmbedding):
+    """
+    This is the third version of algorithm. It is similar to the first 2 version with first 2 steps, but the third step is different:
+    Step 3: The node will move towards the chosen neighbour the following way:
+        - parameter max_step_portion determines maximum portion of possible step towards the chosen neighbour. So the value 0.5 means that 
+        node can be moved maximally by half (or 50%) of the distance towards the chosen neighbour. 
+        - The  step is determined by the dependency on the chosen neighbour. The higher dependency, the bigger step towards the chosen neighbour.
+
+        So the amount of step towards the chosen neighbour is determined by max_step_portion * dependency. 
+        Simply:
+            step = max_step_portion * dependency
+
+            new_embedding += (neigh_emb - current_node_emb) * step
+
+
+    """
+
+    def __init__( self, network : nx.Graph,
+                  dependency_matrix : np.ndarray,
+                  embedding_dim : int,
+                  k : int = 2,
+                  eps : float = 0.1
+
+                ):    
+        super().__init__(network, dependency_matrix, embedding_dim)
+
+        self.k = k
+        self.eps = eps
+        
+
+    def iteration(self):
+        
+        for X in self.network.nodes:
+            
+            # cumulative_probs = self.precomputed_dep_probs[X]
+
+            # random_number = random.random()
+            # Y = None
+
+            # for i, cumulative_prob in enumerate(cumulative_probs):
+            #     if random_number <= cumulative_prob:
+            #         Y = i
+            #         if Y == X:
+            #             print("Vybrany rovnaky uzol")
+            #         break
+            Y = -1
+            while True:
+
+                Y = random.randint(0,len(self.network.nodes)-1)
+                if Y != X:
+                    break
+
+            M = self.embedding_current_state[Y] - self.embedding_current_state[X]
+
+            norm_M = np.linalg.norm(M)
+
+            #if norm_M == 0.0: continue
+
+            M1 = M / norm_M    
+
+
+                        
+            # if self.dependency_matrix[X][Y] == 0.0:
+            #     self.embedding_next_state[X] = self.embedding_current_state[X] - 1.0 *  self.MinDist * M1 
+            #     continue       
+
+            D_x_y = self.dependency_matrix[X][Y]
+            D_y_x = self.dependency_matrix[Y][X]
+
+            q = max(D_x_y * (D_x_y + D_y_x) / 2, self.eps)
+
+            minDist = max(1 - (D_x_y + D_y_x) / 2, self.eps)
+            
+            if norm_M < minDist:
+                self.embedding_next_state[X] = self.embedding_current_state[X] - q * (minDist - norm_M) * M1
+
+            else:
+                self.embedding_next_state[X] = self.embedding_current_state[X] + q * (norm_M - minDist) * M1
