@@ -1232,13 +1232,11 @@ class DependencyEmebeddingDocument_v27_07_2023(GeneticEmbedding):
     def __init__( self, network : nx.Graph,
                   dependency_matrix : np.ndarray,
                   embedding_dim : int,
-                  k : int = 2,
-                  eps : float = 0.1
+                  eps : float
 
                 ):    
         super().__init__(network, dependency_matrix, embedding_dim)
 
-        self.k = k
         self.eps = eps
         
 
@@ -1257,7 +1255,8 @@ class DependencyEmebeddingDocument_v27_07_2023(GeneticEmbedding):
             #         if Y == X:
             #             print("Vybrany rovnaky uzol")
             #         break
-            Y = -1
+            # Y = -1
+
             while True:
 
                 Y = random.randint(0,len(self.network.nodes)-1)
@@ -1281,12 +1280,18 @@ class DependencyEmebeddingDocument_v27_07_2023(GeneticEmbedding):
             D_x_y = self.dependency_matrix[X][Y]
             D_y_x = self.dependency_matrix[Y][X]
 
-            q = max(D_x_y * (D_x_y + D_y_x) / 2, self.eps)
 
-            minDist = max(1 - (D_x_y + D_y_x) / 2, self.eps)
             
-            if norm_M < minDist:
-                self.embedding_next_state[X] = self.embedding_current_state[X] - q * (minDist - norm_M) * M1
+            q = max(D_x_y * (D_x_y + D_y_x) / 2.0 , self.eps)
 
-            else:
+            #minDist = max((1 - D_x_y) * (1 - (D_x_y + D_y_x) / 2), self.eps)
+            minDist = 0.01
+
+            # print("norm_M: ", norm_M)
+            # print("minDist: ", minDist)
+            # print("q: ", q)
+            # print()
+            # if norm_M < minDist:
+            #     self.embedding_next_state[X] = self.embedding_current_state[X] - q * (minDist - norm_M) * M1
+            if norm_M > minDist:
                 self.embedding_next_state[X] = self.embedding_current_state[X] + q * (norm_M - minDist) * M1
