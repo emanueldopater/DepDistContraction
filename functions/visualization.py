@@ -42,9 +42,10 @@ def visualize_network_animation(G: nx.Graph, embs_list: list, scatter_size_offse
 
         # Update the scatter plot with the new node positions
         scatter = ax.scatter(node_embeddings[:, 0], node_embeddings[:, 1], color='blue', s=[scatter_size_offset + G.degree[node] ** scatter_size_degree_power for node in sorted(G.nodes)])
-        for node in G.nodes:
-            node_emb = node_embeddings[node]
-            ax.annotate(str(node), (node_emb[0], node_emb[1]), color='red', fontsize=12)
+        
+        # for node in G.nodes:
+        #     node_emb = node_embeddings[node]
+        #     ax.annotate(str(node), (node_emb[0], node_emb[1]), color='red', fontsize=12)
 
         # Draw the edges
         for edge in G.edges:
