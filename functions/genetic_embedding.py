@@ -22,7 +22,7 @@ class GeneticEmbedding:
         self.dependency_matrix = dependency_matrix
         self.embedding_dim = embedding_dim
 
-        self.embedding_current_state = np.random.uniform(size=(len(network.nodes), self.embedding_dim))
+        self.embedding_current_state = np.random.uniform(low=-100, high=100, size=(len(network.nodes), self.embedding_dim))
         self.embedding_next_state = self.embedding_current_state.copy()
 
         self.precomputed_dep_probs = np.zeros((len(self.network.nodes), len(self.network.nodes)))
@@ -1484,35 +1484,22 @@ class DependencyEmebeddingDocument_v01_08_2023_V2(GeneticEmbedding):
                 self.embedding_next_state[X] = self.embedding_current_state[X] - q * (minDist * self.eps - norm_M) * M1
 
 class DependencyEmebeddingDocument_DepDist(GeneticEmbedding):
-    """
-    This is the third version of algorithm. It is similar to the first 2 version with first 2 steps, but the third step is different:
-    Step 3: The node will move towards the chosen neighbour the following way:
-        - parameter max_step_portion determines maximum portion of possible step towards the chosen neighbour. So the value 0.5 means that 
-        node can be moved maximally by half (or 50%) of the distance towards the chosen neighbour. 
-        - The  step is determined by the dependency on the chosen neighbour. The higher dependency, the bigger step towards the chosen neighbour.
-
-        So the amount of step towards the chosen neighbour is determined by max_step_portion * dependency. 
-        Simply:
-            step = max_step_portion * dependency
-
-            new_embedding += (neigh_emb - current_node_emb) * step
-
-
-    """
 
     def __init__( self, network : nx.Graph,
                   dependency_matrix : np.ndarray,
                   embedding_dim : int,
-                  p : float = 0.7,
-                ):    
+                  p : float,
+                  depThreshold : float):
         super().__init__(network, dependency_matrix, embedding_dim)
 
         self.p = p
-        #self.indepDist = 1.0 / len(self.network.nodes)
-        self.indepDist = 0.01
 
-        #self.depDist = self.indepDist / math.log(len(self.network.nodes))
-        self.depDist = 0.001
+        ####################################
+        N = len(self.network.nodes)
+        self.indepDist = 0.01
+        self.depDist = 0.0005
+        self.depThreshold = depThreshold
+        ####################################
 
     def choose_node(self,X):
 
@@ -1537,12 +1524,9 @@ class DependencyEmebeddingDocument_DepDist(GeneticEmbedding):
 
             Y = self.choose_node(X)
 
-            #if X == Y: continue
-
             M = self.embedding_current_state[Y] - self.embedding_current_state[X]
             norm_M = np.linalg.norm(M)
             M1 = M / norm_M    
-
 
             D_x_y = self.dependency_matrix[X][Y]
             D_y_x = self.dependency_matrix[Y][X]
@@ -1553,16 +1537,81 @@ class DependencyEmebeddingDocument_DepDist(GeneticEmbedding):
             q = D_x_y * (D_x_y + D_y_x) / 2.0 
 
             DIST = None
-
-            # if D_x_y + D_y_x < 1:
-            #     DIST = self.indepDist
-            # else:
-            #     DIST = self.depDist
-
-            DIST = self.indepDist
+            if D_x_y + D_y_x < self.depThreshold:
+                DIST = self.indepDist
+            else:
+                DIST = self.depDist
 
             if norm_M > DIST:
                 self.embedding_next_state[X] = self.embedding_current_state[X] + q * (norm_M - DIST) * M1
             
-            # elif norm_M < ((1 - q) * DIST):
-            #     self.embedding_next_state[X] = self.embedding_current_state[X] - q * ((1 - q) * DIST - norm_M) * M1
+            if norm_M < self.depDist:
+                self.embedding_next_state[X] = self.embedding_current_state[X] - q * (self.depDist - norm_M) * M1
+
+
+class DepFinal(GeneticEmbedding):
+
+    def __init__( self, network : nx.Graph,
+                  dependency_matrix : np.ndarray,
+                  embedding_dim : int,
+                  
+                ):    
+        super().__init__(network, dependency_matrix, embedding_dim)
+
+
+        ####################################
+        self.neighProb = 0.2
+
+        N = len(self.network.nodes)
+        # self.maxDist = 0.01
+        # self.minDist = 0.0005
+        self.maxDist = 1.0
+        self.minDist = 0.05
+
+        #self.minDist = 0.0
+        ####################################
+
+    def choose_node(self,X):
+
+        all_neighs = list(nx.neighbors(self.network,X))
+        selected_neigh = random.choice(all_neighs)
+        if random.random() < self.neighProb:
+            return selected_neigh
+
+        neighs_of_neigh = list(nx.neighbors(self.network, selected_neigh))
+        neighs_of_neigh.remove(X)
+        for node in all_neighs:
+            if node in neighs_of_neigh:
+                neighs_of_neigh.remove(node)
+
+        if len(neighs_of_neigh) > 0:
+            selected_neigh_of_neigh = random.choice(neighs_of_neigh)
+            return selected_neigh_of_neigh
+
+        while True:
+            random_node = random.randint(0,len(self.network.nodes) - 1)
+            if random_node != X:
+                break
+        return random_node 
+        
+    def iteration(self):
+        
+        for X in self.network.nodes:
+
+            Y = self.choose_node(X)
+
+            M = self.embedding_current_state[Y] - self.embedding_current_state[X]
+            norm_M = np.linalg.norm(M)
+            M1 = M / norm_M    
+
+            D_x_y = self.dependency_matrix[X][Y]
+            D_y_x = self.dependency_matrix[Y][X]
+
+            q = D_x_y * D_y_x * (D_x_y + D_y_x) / 2.0
+
+            expDist = (1 - q) * self.maxDist
+            expMinDist = (1 - q) * self.minDist
+
+            exp = norm_M / expDist
+            exp = 1.0 / (0.5 + exp / 1.5)
+            self.embedding_next_state[X] = self.embedding_current_state[X] + math.pow(q, exp) * (norm_M - expMinDist) * M1

@@ -11,7 +11,7 @@ def r(G,x,vi,y):
   return weight_viy / (weight_xvi + weight_viy)
 
 
-def dependency(G,has_edge_weights = False):
+def dependency_directed(G,has_edge_weights = False):
   for node in G.nodes:
     for edge in G.edges(node):
 
