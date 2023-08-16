@@ -4,7 +4,7 @@ import networkx as nx
 import math
 
 
-class GeneticEmbedding:
+class DependencyEmbedding:
     """
     This is abstract class for genetic embedding.
     It is intended to use only with undirected graphs.

@@ -1,7 +1,6 @@
 import networkx as nx
 import numpy as np
 
-
 def r(G,x,vi,y):
   
   weight_viy = get_edge_weight(G, vi, y)
@@ -11,7 +10,7 @@ def r(G,x,vi,y):
   return weight_viy / (weight_xvi + weight_viy)
 
 
-def dependency(G,has_edge_weights = False):
+
   for node in G.nodes:
     for edge in G.edges(node):
 
@@ -62,8 +61,6 @@ def dependency_matrix(G):
 
   for x in G.nodes:
     for y in G.nodes:
-
-      if not G.has_edge(x,y): continue
 
       if x == y: continue
 
