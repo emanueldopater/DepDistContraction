@@ -63,7 +63,7 @@ def dependency_matrix(G):
   for x in G.nodes:
     for y in G.nodes:
 
-      #if not G.has_edge(x,y): continue
+      if not G.has_edge(x,y): continue
 
       if x == y: continue
 
