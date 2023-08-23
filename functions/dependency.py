@@ -5,7 +5,6 @@ def r(G,x,vi,y):
   
   weight_viy = get_edge_weight(G, vi, y)
   weight_xvi = get_edge_weight(G, x, vi)
-  weight_viy = get_edge_weight(G, vi, y)
 
   return weight_viy / (weight_xvi + weight_viy)
 
