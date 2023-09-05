@@ -1,52 +1,53 @@
 import networkx as nx
 import numpy as np
 
-def r(G,x,vi,y):
-  
-  weight_viy = get_edge_weight(G, vi, y)
-  weight_xvi = get_edge_weight(G, x, vi)
 
-  return weight_viy / (weight_xvi + weight_viy)
+def r(G, x, vi, y):
+    weight_viy = get_edge_weight(G, vi, y)
+    weight_xvi = get_edge_weight(G, x, vi)
+
+    return weight_viy / (weight_xvi + weight_viy)
+
 
 def get_edge_weight(G, x, y):
-  if G.has_edge(x,y):
-    return G[x][y]['weight']
-  else:
-    return 0.0
-   
+    if G.has_edge(x, y):
+        return G[x][y]["weight"]
+    else:
+        return 0.0
+
+
 def dependency_matrix(G):
+    dep_matrix = np.zeros((len(G.nodes), len(G.nodes)))
 
-  dep_matrix = np.zeros((len(G.nodes),len(G.nodes)))
+    for x in G.nodes:
+        for y in G.nodes:
+            if x == y:
+                continue
 
-  for x in G.nodes:
-    for y in G.nodes:
+            weight_xy = get_edge_weight(G, x, y)
 
-      if x == y: continue
+            CN_xy = nx.common_neighbors(G, x, y)
 
-      weight_xy = get_edge_weight(G, x, y)
+            sum_CN = 0.0
 
-      CN_xy = nx.common_neighbors(G, x, y)
+            sum_CN += weight_xy
+            for v_i in CN_xy:
+                weight_xvi = get_edge_weight(G, x, v_i)
 
-      sum_CN = 0.0
+                r_x_vi_y = r(G, x, v_i, y)
 
-      sum_CN += weight_xy
-      for v_i in CN_xy:
-        weight_xvi = get_edge_weight(G, x, v_i)
+                sum_CN += weight_xvi * r_x_vi_y
 
-        r_x_vi_y = r(G,x,v_i,y)
+            N_x = G.neighbors(x)
 
-        sum_CN += (weight_xvi * r_x_vi_y)
+            sum_N = 0.0
 
-      N_x = G.neighbors(x)
+            for v_j in N_x:
+                weight_xvj = get_edge_weight(G, x, v_j)
 
-      sum_N = 0.0
+                sum_N += weight_xvj
 
-      for v_j in N_x:
-        weight_xvj = get_edge_weight(G, x, v_j)
+            D_xy = sum_CN / sum_N
+            dep_matrix[x][y] = D_xy
 
-        sum_N += weight_xvj
-      
-      D_xy = sum_CN / sum_N
-      dep_matrix[x][y] = D_xy
-
-  return dep_matrix
+    return dep_matrix

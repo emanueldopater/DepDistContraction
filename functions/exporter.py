@@ -14,7 +14,7 @@ def export_to_gdf(filename : str,G : nx.Graph, embs : np.ndarray,has_labels = Fa
     f.write('\n')
 
 
-    for idx,node in enumerate(G.nodes):
+    for idx,node in enumerate(sorted(G.nodes)):        
         if has_labels:
             f.write(str(int(node)) + "," + "\"None\"," + str(embs[idx][0]) + "," +str(embs[idx][1]))
         else:
