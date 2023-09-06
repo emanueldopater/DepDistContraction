@@ -2,6 +2,7 @@ import random
 import numpy as np
 import networkx as nx
 import math
+from functions.dependency import dependency_X_Y
 
 
 class DependencyEmbedding:
@@ -17,12 +18,11 @@ class DependencyEmbedding:
     def __init__(
         self,
         network: nx.Graph,
-        dependency_matrix: np.ndarray,
         embedding_dim: int,
         embedding_scale: float = 1.0,
     ) -> None:
         self.network = network
-        self.dependency_matrix = dependency_matrix
+        self.dependency_matrix = np.full((len(network.nodes), len(network.nodes)), -1.0)
         self.embedding_dim = embedding_dim
         self.embedding_scale = embedding_scale
 
@@ -33,14 +33,18 @@ class DependencyEmbedding:
         )
         self.embedding_next_state = self.embedding_current_state.copy()
 
+
+
     def iteration(self):
         "Virtual function - should be implemented in child class"
         pass
 
     def run(self, iterations):
-        for _ in range(iterations):
+        for i in range(iterations):
             self.iteration()
             self.embedding_current_state = self.embedding_next_state.copy()
+
+            print('Iteration: ' + str(i) + ' done')
 
         # return embeddings
         return self.embedding_current_state
@@ -51,9 +55,9 @@ class DependencyEmbedding:
 
 class DependencyEmebeddingDocument_DepDist(DependencyEmbedding):
     def __init__(
-        self, network: nx.Graph, dependency_matrix: np.ndarray, embedding_dim: int
+        self, network: nx.Graph, embedding_dim: int
     ):
-        super().__init__(network, dependency_matrix, embedding_dim)
+        super().__init__(network, embedding_dim)
 
         ####################################
         self.maxDist = 0.01
@@ -90,8 +94,9 @@ class DependencyEmebeddingDocument_DepDist(DependencyEmbedding):
             norm_M = np.linalg.norm(M)
             M1 = M / norm_M
 
-            D_x_y = self.dependency_matrix[X][Y]
-            D_y_x = self.dependency_matrix[Y][X]
+            D_x_y = dependency_X_Y(self.network,self.dependency_matrix,X,Y)
+
+            D_y_x = dependency_X_Y(self.network,self.dependency_matrix,Y,X)
 
             q = D_x_y * D_y_x * (D_x_y + D_y_x) / 2.0
 
