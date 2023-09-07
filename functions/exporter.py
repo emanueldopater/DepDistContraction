@@ -31,3 +31,5 @@ def export_to_gdf(filename : str,G : nx.Graph, embs : np.ndarray,has_labels = Fa
         f.write(str(int(src)) + "," + str(int(tar)) + "," + str(edge_weight) + ",false")
         f.write('\n')
     f.close()
+
+
