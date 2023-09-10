@@ -3,7 +3,7 @@ import numpy as np
 import networkx as nx
 import math
 from functions.dependency import dependency_X_Y
-
+from sklearn.metrics import mean_squared_error
 
 class DependencyEmbedding:
     """
@@ -34,6 +34,8 @@ class DependencyEmbedding:
         self.embedding_next_state = self.embedding_current_state.copy()
 
 
+        self.differences = []
+
 
     def iteration(self):
         "Virtual function - should be implemented in child class"
@@ -42,9 +44,12 @@ class DependencyEmbedding:
     def run(self, iterations):
         for i in range(iterations):
             self.iteration()
+
+            self.differences.append(mean_squared_error(self.embedding_current_state, self.embedding_next_state))
+            
             self.embedding_current_state = self.embedding_next_state.copy()
 
-            print('Iteration: ' + str(i) + ' done')
+            #print('Iteration: ' + str(i) + ' done')
 
         # return embeddings
         return self.embedding_current_state
