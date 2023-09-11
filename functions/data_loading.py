@@ -4,6 +4,7 @@ import numpy as np
 import networkx as nx
 
 
+# Reindex the nodes in edge list to start from 0 to better index as arrays.
 def scale_edge_list(df):
 
     source_targer_values = df.iloc[:,:2].values
@@ -44,7 +45,6 @@ def load_net_from_edge_list(path, sep = ',', header = None, names = ['source', '
         target = int(edge[1])
 
         weight = edge[2]
-
 
         G.add_edge(source, target, weight = weight)
     

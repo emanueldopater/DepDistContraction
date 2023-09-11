@@ -5,14 +5,11 @@ import math
 from functions.dependency import dependency_X_Y
 from sklearn.metrics import mean_squared_error
 
-class DependencyEmbedding:
+class DepDist_Base:
     """
     This is abstract class for dependency embedding.
     It is intended to use only with undirected graphs.
 
-    These functions have to to be implemented in child class:
-    - iteration - one iteration of genetic embedding algorithm
-    - run - run genetic embedding algorithm for given number of iterations
     """
 
     def __init__(
@@ -58,7 +55,7 @@ class DependencyEmbedding:
         return self.embedding_current_state
 
 
-class DependencyEmebeddingDocument_DepDist(DependencyEmbedding):
+class DepDist_Contraction(DepDist_Base):
     def __init__(
         self, network: nx.Graph, embedding_dim: int
     ):

@@ -1,7 +1,7 @@
 from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
 import networkx as nx
-from functions.nsdl import DependencyEmbedding
+from functions.depdist_contraction import DepDist_Base
 
 # generate functions that save only one picture on the N iteration
 
@@ -10,7 +10,7 @@ from functions.nsdl import DependencyEmbedding
 
 def visualize_network_animation(
         G: nx.Graph,
-        embedding_generator: DependencyEmbedding,
+        embedding_generator: DepDist_Base,
         iterations: int,
         visualization_step: int,
         scatter_size_offset: int = 1,

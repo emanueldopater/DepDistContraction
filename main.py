@@ -1,6 +1,6 @@
 from functions.data_loading import *
 from functions.dependency import *
-from functions.nsdl import *
+from functions.depdist_contraction import *
 from functions.visualization import *
 from functions.exporter import *
 
@@ -13,22 +13,22 @@ loaded_football = load_net_from_edge_list(path='datasets/edges_football.csv', se
 
 
 
-embedding_net_science = DependencyEmebeddingDocument_DepDist(
+embedding_net_science = DepDist_Contraction(
     network=loaded_net_science,
     embedding_dim=2
 )
 
-embedding_karate_club = DependencyEmebeddingDocument_DepDist(
+embedding_karate_club = DepDist_Contraction(
     network=loaded_karate_club,
     embedding_dim=2
 )
 
-embedding_lesmis = DependencyEmebeddingDocument_DepDist(
+embedding_lesmis = DepDist_Contraction(
     network=loaded_lemis,
     embedding_dim=2
 )
 
-embedding_football = DependencyEmebeddingDocument_DepDist(
+embedding_football = DepDist_Contraction(
     network=loaded_football,
     embedding_dim=2
 )
