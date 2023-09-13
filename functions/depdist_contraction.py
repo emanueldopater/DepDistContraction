@@ -23,11 +23,24 @@ class DepDist_Base:
         self.embedding_dim = embedding_dim
         self.embedding_scale = embedding_scale
 
-        self.embedding_current_state = np.random.uniform(
-            low=0.0,
-            high=self.embedding_scale,
-            size=(len(network.nodes), self.embedding_dim),
-        )
+        # self.embedding_current_state = np.random.uniform(
+        #     low=0.0,
+        #     high=self.embedding_scale,
+        #     size=(len(network.nodes), self.embedding_dim),
+        # )
+
+        self.embedding_current_state = np.zeros((len(network.nodes), self.embedding_dim))
+
+        for node in sorted(network.nodes):
+            portion = (1 - 1 / (1 + network.degree[node])) / 2
+            self.embedding_current_state[node] = np.random.uniform(
+                low=0.5 - portion,
+                high=0.5 + portion,
+                size=(self.embedding_dim,),
+            )
+   
+        
+
         self.embedding_next_state = self.embedding_current_state.copy()
 
 
@@ -51,26 +64,30 @@ class DepDist_Base:
         # return embeddings
         return self.embedding_current_state
 
+
+    # obtain embeddings 
     def get_embeddings(self):
         return self.embedding_current_state
 
 
+
 class DepDist_Contraction(DepDist_Base):
-    def __init__(
-        self, network: nx.Graph, embedding_dim: int
-    ):
+    def __init__( self, network : nx.Graph,
+                  embedding_dim : int,
+                ):    
         super().__init__(network, embedding_dim)
 
         ####################################
-        self.maxDist = 0.01
-        self.minDist = 0.002
+        self.maxDepDist = 0.002
+        self.maxAccDist = 0.01
         ####################################
 
-    def choose_node(self, X):
-        all_neighs = list(nx.neighbors(self.network, X))
+    def choose_node(self,X):
+
+        all_neighs = list(nx.neighbors(self.network,X))
 
         neighProb = 1.0 - 1.0 / (1 + len(all_neighs))
-        rand = random.random()
+        rand = random.random()       
 
         selected_neigh = random.choice(all_neighs)
         if rand < neighProb:
@@ -87,27 +104,24 @@ class DepDist_Contraction(DepDist_Base):
             return selected_neigh_of_neigh
         else:
             return selected_neigh
-
+        
     def iteration(self):
+        
         for X in self.network.nodes:
             Y = self.choose_node(X)
 
             M = self.embedding_current_state[Y] - self.embedding_current_state[X]
             norm_M = np.linalg.norm(M)
-            M1 = M / norm_M
+            M1 = M / norm_M    
 
             D_x_y = dependency_X_Y(self.network,self.dependency_matrix,X,Y)
-
             D_y_x = dependency_X_Y(self.network,self.dependency_matrix,Y,X)
-
+            
             q = D_x_y * D_y_x * (D_x_y + D_y_x) / 2.0
 
-            expDist = (1 - q) * self.maxDist
-            expMinDist = (1 - q) * self.minDist
+            depDist = (1.0 - q) * self.maxDepDist
 
-            accSpeed = 0.5 + 0.5 * norm_M / expDist
+            accDist = (1.0 - q) * self.maxAccDist
+            accCoef = 0.5 + 0.5 * norm_M / accDist
 
-            self.embedding_next_state[X] = (
-                self.embedding_current_state[X]
-                + math.pow(q, 1.0 / accSpeed) * (norm_M - expMinDist) * M1
-            )
+            self.embedding_next_state[X] = self.embedding_current_state[X] + math.pow(q, 1.0 / accCoef) * (norm_M - depDist) * M1

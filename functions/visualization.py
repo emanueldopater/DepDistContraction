@@ -2,8 +2,53 @@ from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
 import networkx as nx
 from functions.depdist_contraction import DepDist_Base
-
+from functions.exporter import export_to_gdf
 # generate functions that save only one picture on the N iteration
+
+
+def pdf_gdf_after_n_iterations(
+        G: nx.Graph,
+        embedding_generator: DepDist_Base,
+        iterations: int,
+        show_iterations : list[int],
+        scatter_size_offset: int = 1,
+        scatter_size_degree_power: int = 1.9,
+         fps : int = 30,
+         show_labels : bool = False,
+         file_name : str = ""
+         ):
+    
+
+    for i in range(iterations):
+        embs = embedding_generator.run(iterations=1)
+
+        if (i+1) in show_iterations:
+            # Draw the edges
+            for edge in G.edges:
+                src, tar = edge
+                x = [embs[src][0], embs[tar][0]]
+                y = [embs[src][1], embs[tar][1]]
+                plt.plot(x, y, color='black', linewidth=0.1)
+
+
+            # Update the scatter plot with the new node positions
+            plt.scatter(embs[:, 0], embs[:, 1], color='blue', s=[scatter_size_offset + G.degree[node] ** scatter_size_degree_power for node in sorted(G.nodes)])
+            
+            if show_labels:
+                for node in G.nodes:
+                    node_emb = embs[node]
+                    plt.annotate(str(node), (node_emb[0], node_emb[1]), color='red', fontsize=12)
+
+
+            #show iteration number as title of plot
+            plt.title("Iteration: " + str(i+1))
+
+            #save plot to pdf
+            plt.savefig(file_name + "_iteration_" + str(i+1) + ".pdf")
+            export_to_gdf(file_name + "_iteration_" + str(i+1) + ".gdf",G,embs,has_labels=show_labels)
+            plt.clf()
+
+
 
 
 
