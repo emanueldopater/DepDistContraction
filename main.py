@@ -35,7 +35,8 @@ embedding_net_science = DepDist_Contraction(
 
 
 
-# you can visualize run the visualization animation, here it runs 500 iterations and diplay each 5th iteration
+# you can visualize the animation of embbedding generation with this function, it runs 500 iterations and diplay each 5th iteration
+
 # here we visualize les miserales network
 visualize_network_animation(
     G=loaded_lemis,
@@ -48,7 +49,7 @@ visualize_network_animation(
 
 
 # or you can you use this function, which generates pdf images and gdf files for iteration specified in show_iterations list
-# here we visualize karate club network
+# here we generate pdf and gdf for karate club network
 pdf_gdf_after_n_iterations(
     G=loaded_karate_club,
     embedding_generator=embedding_karate_club,
