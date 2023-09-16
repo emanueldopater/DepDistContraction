@@ -29,15 +29,11 @@ class DepDist_Base:
             size=(len(network.nodes), self.embedding_dim),
         )
 
-        # self.embedding_current_state = np.zeros((len(network.nodes), self.embedding_dim))
+        self.embedding_current_state = np.zeros((len(network.nodes), self.embedding_dim))
 
-        # for node in sorted(network.nodes):
-        #     portion = (1 - 1 / (1 + network.degree[node])) / 2
-        #     self.embedding_current_state[node] = np.random.uniform(
-        #         low=0.5 - portion,
-        #         high=0.5 + portion,
-        #         size=(self.embedding_dim,),
-        #     )
+        for node in sorted(network.nodes):
+            self.embedding_current_state[node] = np.random.normal(0.5, 0.01 * self.network.degree[node] ,(self.embedding_dim))
+
    
         
 
