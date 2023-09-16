@@ -23,21 +23,21 @@ class DepDist_Base:
         self.embedding_dim = embedding_dim
         self.embedding_scale = embedding_scale
 
-        # self.embedding_current_state = np.random.uniform(
-        #     low=0.0,
-        #     high=self.embedding_scale,
-        #     size=(len(network.nodes), self.embedding_dim),
-        # )
+        self.embedding_current_state = np.random.uniform(
+            low=0.0,
+            high=self.embedding_scale,
+            size=(len(network.nodes), self.embedding_dim),
+        )
 
-        self.embedding_current_state = np.zeros((len(network.nodes), self.embedding_dim))
+        # self.embedding_current_state = np.zeros((len(network.nodes), self.embedding_dim))
 
-        for node in sorted(network.nodes):
-            portion = (1 - 1 / (1 + network.degree[node])) / 2
-            self.embedding_current_state[node] = np.random.uniform(
-                low=0.5 - portion,
-                high=0.5 + portion,
-                size=(self.embedding_dim,),
-            )
+        # for node in sorted(network.nodes):
+        #     portion = (1 - 1 / (1 + network.degree[node])) / 2
+        #     self.embedding_current_state[node] = np.random.uniform(
+        #         low=0.5 - portion,
+        #         high=0.5 + portion,
+        #         size=(self.embedding_dim,),
+        #     )
    
         
 

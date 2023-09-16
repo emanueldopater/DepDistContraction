@@ -11,11 +11,10 @@ def pdf_gdf_after_n_iterations(
         embedding_generator: DepDist_Base,
         iterations: int,
         show_iterations : list[int],
-        scatter_size_offset: int = 1,
-        scatter_size_degree_power: int = 1.9,
-         fps : int = 30,
-         show_labels : bool = False,
-         file_name : str = ""
+        node_display_size_base: int = 1,
+        node_display_size_power: int = 1.9,
+        show_labels : bool = False,
+        file_prefix : str = ""
          ):
     
 
@@ -32,7 +31,7 @@ def pdf_gdf_after_n_iterations(
 
 
             # Update the scatter plot with the new node positions
-            plt.scatter(embs[:, 0], embs[:, 1], color='blue', s=[scatter_size_offset + G.degree[node] ** scatter_size_degree_power for node in sorted(G.nodes)])
+            plt.scatter(embs[:, 0], embs[:, 1], color='blue', s=[node_display_size_base + G.degree[node] ** node_display_size_power for node in sorted(G.nodes)])
             
             if show_labels:
                 for node in G.nodes:
@@ -44,8 +43,8 @@ def pdf_gdf_after_n_iterations(
             plt.title("Iteration: " + str(i+1))
 
             #save plot to pdf
-            plt.savefig(file_name + "_iteration_" + str(i+1) + ".pdf")
-            export_to_gdf(file_name + "_iteration_" + str(i+1) + ".gdf",G,embs,has_labels=show_labels)
+            plt.savefig(file_prefix + "_iteration_" + str(i+1) + ".pdf")
+            export_to_gdf(file_prefix + "_iteration_" + str(i+1) + ".gdf",G,embs,has_labels=show_labels)
             plt.clf()
 
 
@@ -58,8 +57,8 @@ def visualize_network_animation(
         embedding_generator: DepDist_Base,
         iterations: int,
         visualization_step: int,
-        scatter_size_offset: int = 1,
-        scatter_size_degree_power: int = 1.9,
+        node_display_size_base: int = 1,
+        node_display_size_power: int = 1.9,
          fps : int = 30,
          show_labels : bool = False,
          ):
@@ -87,7 +86,7 @@ def visualize_network_animation(
         node_embeddings = list_of_embs[iteration]
 
         # Update the scatter plot with the new node positions
-        scatter = ax.scatter(node_embeddings[:, 0], node_embeddings[:, 1], color='blue', s=[scatter_size_offset + G.degree[node] ** scatter_size_degree_power for node in sorted(G.nodes)])
+        scatter = ax.scatter(node_embeddings[:, 0], node_embeddings[:, 1], color='blue', s=[node_display_size_base + G.degree[node] ** node_display_size_power for node in sorted(G.nodes)])
         
         if show_labels:
             for node in G.nodes:
