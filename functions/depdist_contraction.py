@@ -12,12 +12,17 @@ class DepDist_Base:
 
     """
 
-    def __init__(
-        self,
-        network: nx.Graph,
-        embedding_dim: int,
-        embedding_scale: float = 1.0,
-    ) -> None:
+    def __init__(self, network: nx.Graph, embedding_dim: int, embedding_scale: float = 1.0 ) -> None:
+        """
+        Constructor. 
+        Args:
+            network (nx.Graph): Undirected networkx graph.
+            embedding_dim (int): Dimension of embedding vectors.  
+            embedding_scale (float, optional): The range of intial embeddings.
+            Each embedding dimension is generated from 0.0 to embedding_scale, which is defaulty set to 1.0.
+            It is not necessary to change it, and we don't recommend to do so.
+        """
+        
         self.network = network
         self.dependency_matrix = np.full((len(network.nodes), len(network.nodes)), -1.0)
         self.embedding_dim = embedding_dim
@@ -29,52 +34,45 @@ class DepDist_Base:
             size=(len(network.nodes), self.embedding_dim),
         )
 
-        # self.embedding_current_state = np.zeros((len(network.nodes), self.embedding_dim))
-
-        # for node in sorted(network.nodes):
-        #     portion = (1 - 1 / (1 + network.degree[node])) / 2
-        #     self.embedding_current_state[node] = np.random.uniform(
-        #         low=0.5 - portion,
-        #         high=0.5 + portion,
-        #         size=(self.embedding_dim,),
-        #     )
-   
-        
-
         self.embedding_next_state = self.embedding_current_state.copy()
-
 
         self.differences = []
 
 
-    def iteration(self):
+    def iteration(self) -> None:
         "Virtual function - should be implemented in child class"
         pass
 
-    def run(self, iterations):
+    def run(self, iterations: int) -> np.ndarray:
+        """
+        Run generation of embeddings.
+
+        Args:
+            iterations (int): Number of iterations to run.
+
+        Returns:
+            np.ndarray: Return the last generated embedding. 
+        """
         for i in range(iterations):
             self.iteration()
 
             self.differences.append(mean_squared_error(self.embedding_current_state, self.embedding_next_state))
-            
             self.embedding_current_state = self.embedding_next_state.copy()
-
-            #print('Iteration: ' + str(i) + ' done')
 
         # return embeddings
         return self.embedding_current_state
 
 
     # obtain embeddings 
-    def get_embeddings(self):
+    def get_embeddings(self) -> np.ndarray:
         return self.embedding_current_state
 
 
 
 class DepDist_Contraction(DepDist_Base):
-    def __init__( self, network : nx.Graph,
-                  embedding_dim : int,
-                ):    
+    def __init__( self, network : nx.Graph, embedding_dim : int) -> None:
+
+        # calling constructor of base class    
         super().__init__(network, embedding_dim)
 
         ####################################
@@ -82,7 +80,16 @@ class DepDist_Contraction(DepDist_Base):
         self.maxAccDist = 0.01
         ####################################
 
-    def choose_node(self,X):
+    def _choose_node(self,X):
+        """
+        Internal function to choose random neighbour in embedding generation process.
+
+        Args:
+            X (int): Index of current node.
+
+        Returns:
+            int:  Index of chosen node.
+        """
 
         all_neighs = list(nx.neighbors(self.network,X))
 
@@ -106,9 +113,12 @@ class DepDist_Contraction(DepDist_Base):
             return selected_neigh
         
     def iteration(self):
+        """
+        Iteration of DepDist_Contraction algorithm.
+        """
         
         for X in self.network.nodes:
-            Y = self.choose_node(X)
+            Y = self._choose_node(X)
 
             M = self.embedding_current_state[Y] - self.embedding_current_state[X]
             norm_M = np.linalg.norm(M)

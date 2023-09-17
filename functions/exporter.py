@@ -1,8 +1,20 @@
 import networkx as nx
 import numpy as np
 
-def export_to_gdf(filename : str,G : nx.Graph, embs : np.ndarray,has_labels = False ):
+def export_to_gdf(filename : str,G : nx.Graph, embs : np.ndarray,has_labels = False ) -> None:
+    """
+    Export generated embedding to gdf file.
 
+    Args:
+        filename (str): Filename of exported file 
+        G (nx.Graph): NetworkX undirected graph.
+        embs (np.ndarray): Generated embedding matrix.
+        has_labels (bool, optional): Whether network has labels to export.
+    """
+
+    # if filename does not end with .gdf, add this suffix
+    if not filename.endswith('.gdf'):
+        filename += '.gdf'
 
     f = open(filename, 'w')
 

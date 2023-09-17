@@ -15,8 +15,20 @@ def pdf_gdf_after_n_iterations(
         node_display_size_power: int = 1.9,
         show_labels : bool = False,
         file_prefix : str = ""
-         ):
-    
+        ) -> None:
+    """
+    Generates
+
+    Args:
+        G (nx.Graph): _description_
+        embedding_generator (DepDist_Base): _description_
+        iterations (int): _description_
+        show_iterations (list[int]): _description_
+        node_display_size_base (int, optional): _description_. Defaults to 1.
+        node_display_size_power (int, optional): _description_. Defaults to 1.9.
+        show_labels (bool, optional): _description_. Defaults to False.
+        file_prefix (str, optional): _description_. Defaults to "".
+    """
 
     for i in range(iterations):
         embs = embedding_generator.run(iterations=1)

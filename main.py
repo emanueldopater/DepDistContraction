@@ -60,4 +60,3 @@ pdf_gdf_after_n_iterations(
     file_prefix="karate_club"
 )
 
-
