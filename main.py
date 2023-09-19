@@ -38,13 +38,23 @@ embedding_net_science = DepDist_Contraction(
 # you can visualize the animation of embbedding generation with this function, it runs 500 iterations and diplay each 5th iteration
 
 # here we visualize les miserales network
-visualize_network_animation_3d(
-    G=loaded_lemis,
-    embedding_generator=embedding_lesmis,
+# visualize_network_animation_3d(
+#     G=loaded_lemis,
+#     embedding_generator=embedding_lesmis,
+#     iterations=500,
+#     visualization_step=5,
+#     show_labels=False,
+#     fps=30
+# )
+
+html_3d_after_n_iterations(
+    G=loaded_net_science,
+    embedding_generator=embedding_net_science,
     iterations=500,
-    visualization_step=5,
+    show_iterations=[500],
     show_labels=False,
-    fps=30
+    file_prefix="lesmis"
+
 )
 
 

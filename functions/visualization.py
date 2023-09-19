@@ -4,7 +4,8 @@ import networkx as nx
 from functions.depdist_contraction import DepDist_Base
 from functions.exporter import export_to_gdf
 from mpl_toolkits.mplot3d import Axes3D  # Import 3D plotting tools
-
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 # generate functions that save only one picture on the N iteration
 
 
@@ -68,31 +69,28 @@ def html_3d_after_n_iterations(
 
         if (i+1) in show_iterations:
 
-            
-            # Draw the edges
+            # Create a Plotly 3D scatter plot
+            scatter = go.Scatter3d(x=embs[:, 0], 
+                                   y=embs[:,1], 
+                                   z=embs[:,2], 
+                                   mode='markers',
+                                   marker=dict(size=[node_display_size_base + G.degree[node] * node_display_size_power for node in sorted(G.nodes)], 
+                                 color='blue'))
+            layout = go.Layout(scene=dict(aspectmode="data"))
+            fig = make_subplots(rows=1, cols=1, specs=[[{'type': 'scatter3d'}]])
+            fig.add_trace(scatter)
+
+
             for edge in G.edges:
                 src, tar = edge
                 x = [embs[src][0], embs[tar][0]]
                 y = [embs[src][1], embs[tar][1]]
-                plt.plot(x, y, color='black', linewidth=0.1)
+                z = [embs[src][2], embs[tar][2]]
+                fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', line=dict(color='black', width=0.1)))
 
-
-            # Update the scatter plot with the new node positions
-            plt.scatter(embs[:, 0], embs[:, 1], color='blue', s=[node_display_size_base + G.degree[node] ** node_display_size_power for node in sorted(G.nodes)])
-            
-            if show_labels:
-                for node in G.nodes:
-                    node_emb = embs[node]
-                    plt.annotate(str(node), (node_emb[0], node_emb[1]), color='red', fontsize=12)
-
-
-            #show iteration number as title of plot
-            plt.title("Iteration: " + str(i+1))
-
-            #save plot to pdf
-            plt.savefig(file_prefix + "_iteration_" + str(i+1) + ".pdf")
-            export_to_gdf(file_prefix + "_iteration_" + str(i+1) + ".gdf",G,embs,has_labels=show_labels)
-            plt.clf()
+            # Export the 3D plot as an interactive HTML file
+            fig.update_layout(scene=dict(aspectmode="data"))
+            fig.write_html('3d_network_plot.html')
 
 
 
