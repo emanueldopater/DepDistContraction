@@ -127,7 +127,7 @@ class DepDist_Contraction(DepDist_Base):
             D_x_y = dependency_X_Y(self.network,self.dependency_matrix,X,Y)
             D_y_x = dependency_X_Y(self.network,self.dependency_matrix,Y,X)
             
-            q = D_x_y * D_y_x * (D_x_y + D_y_x) / 2.0
+            q = ( D_x_y**2 ) * D_y_x 
 
             depDist = (1.0 - q) * self.maxDepDist
 

@@ -39,8 +39,8 @@ embedding_net_science = DepDist_Contraction(
 
 # here we visualize les miserales network
 visualize_network_animation(
-    G=loaded_lemis,
-    embedding_generator=embedding_lesmis,
+    G=loaded_net_science,
+    embedding_generator=embedding_net_science,
     iterations=500,
     visualization_step=5,
     show_labels=False,
@@ -50,13 +50,13 @@ visualize_network_animation(
 
 # or you can you use this function, which generates pdf images and gdf files for iteration specified in show_iterations list
 # here we generate pdf and gdf for karate club network
-# When opening gdf files, you need to use expansion layout, because node embeddings are in very small range (between 0 and 1). 
-pdf_gdf_after_n_iterations(
-    G=loaded_karate_club,
-    embedding_generator=embedding_karate_club,
-    iterations=500,
-    show_iterations=[50,500],
-    show_labels=False,
-    file_prefix="karate_club"
-)
+# # When opening gdf files, you need to use expansion layout, because node embeddings are in very small range (between 0 and 1). 
+# pdf_gdf_after_n_iterations(
+#     G=loaded_net_science,
+#     embedding_generator=embedding_net_science,
+#     iterations=500,
+#     show_iterations=[50,500],
+#     show_labels=False,
+#     file_prefix="karate_club"
+# )
 
