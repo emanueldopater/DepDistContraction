@@ -48,8 +48,8 @@ embedding_net_science = DepDist_Contraction(
 # )
 
 html_3d_after_n_iterations(
-    G=loaded_net_science,
-    embedding_generator=embedding_net_science,
+    G=loaded_karate_club,
+    embedding_generator=embedding_karate_club,
     iterations=500,
     show_iterations=[500],
     show_labels=False,
