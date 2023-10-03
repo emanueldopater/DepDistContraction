@@ -33,18 +33,26 @@ def pdf_gdf_after_n_iterations(
     for i in range(iterations):
         embs = embedding_generator.run(iterations=1)
 
+            
         if (i+1) in show_iterations:
+
+            
+
             # Draw the edges
             for edge in G.edges:
                 src, tar = edge
                 x = [embs[src][0], embs[tar][0]]
                 y = [embs[src][1], embs[tar][1]]
-                plt.plot(x, y, color='black', linewidth=0.1)
+                plt.plot(x, y, color='black', linewidth=0.05, zorder=0)
+
+            #draw nodes
+            plt.scatter(embs[:, 0], 
+                        embs[:, 1], 
+                        color='blue', 
+                        s=[node_display_size_base + G.degree[node] ** node_display_size_power for node in sorted(G.nodes)], 
+                        zorder=5)
 
 
-            # Update the scatter plot with the new node positions
-            plt.scatter(embs[:, 0], embs[:, 1], color='blue', s=[node_display_size_base + G.degree[node] ** node_display_size_power for node in sorted(G.nodes)])
-            
             if show_labels:
                 for node in G.nodes:
                     node_emb = embs[node]
