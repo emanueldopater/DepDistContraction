@@ -31,8 +31,9 @@ class DepDist_Base:
 
         self.embedding_current_state = np.zeros((len(network.nodes), self.embedding_dim))
 
+        base_scale = 1 / len(self.network.nodes)
         for node in sorted(network.nodes):
-            self.embedding_current_state[node] = np.random.normal(0.5, 0.01 * self.network.degree[node] ,(self.embedding_dim))
+            self.embedding_current_state[node] = np.random.normal(0.5, base_scale * self.network.degree[node] ,(self.embedding_dim))
 
    
         

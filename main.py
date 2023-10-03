@@ -15,24 +15,71 @@ loaded_football = load_net_from_edge_list(path='datasets/edges_football.csv', se
 # creating embedding generators for each network
 embedding_karate_club = DepDist_Contraction(
     network=loaded_karate_club,
-    embedding_dim=3
+    embedding_dim=2
 )
 
 embedding_lesmis = DepDist_Contraction(
     network=loaded_lemis,
-    embedding_dim=3,
+    embedding_dim=2
 )
 
 embedding_football = DepDist_Contraction(
     network=loaded_football,
-    embedding_dim=3
+    embedding_dim=2
 )
 
 embedding_net_science = DepDist_Contraction(
     network=loaded_net_science,
-    embedding_dim=3
+    embedding_dim=2
 )
 
+
+
+for i in range(3):
+
+    pdf_gdf_after_n_iterations(
+        G=loaded_karate_club,
+        embedding_generator=embedding_karate_club,
+        iterations=500,
+        show_iterations=[50,500],
+        show_labels=False,
+        file_prefix="karate_club_" + str(i),
+        node_display_size_base=0.7,
+        node_display_size_power=1.5
+    )
+
+    pdf_gdf_after_n_iterations(
+        G=loaded_lemis,
+        embedding_generator=embedding_lesmis,
+        iterations=500,
+        show_iterations=[50,500],
+        show_labels=False,
+        file_prefix="lesmis_" + str(i),
+        node_display_size_base=0.5,
+        node_display_size_power=1.3
+    )
+
+    pdf_gdf_after_n_iterations(
+        G=loaded_football,
+        embedding_generator=embedding_football,
+        iterations=500,
+        show_iterations=[50,500],
+        show_labels=False,
+        file_prefix="football_" + str(i),
+        node_display_size_base=0.5,
+        node_display_size_power=1.3
+    )
+
+    pdf_gdf_after_n_iterations(
+        G=loaded_net_science,
+        embedding_generator=embedding_net_science,
+        iterations=500,
+        show_iterations=[50,500],
+        show_labels=False,
+        file_prefix="net_science_" + str(i),
+        node_display_size_base=0.2,
+        node_display_size_power=1.1
+    )
 
 
 # you can visualize the animation of embbedding generation with this function, it runs 500 iterations and diplay each 5th iteration
@@ -47,15 +94,15 @@ embedding_net_science = DepDist_Contraction(
 #     fps=30
 # )
 
-html_3d_after_n_iterations(
-    G=loaded_karate_club,
-    embedding_generator=embedding_karate_club,
-    iterations=500,
-    show_iterations=[500],
-    show_labels=False,
-    file_prefix="lesmis"
+# html_3d_after_n_iterations(
+#     G=loaded_karate_club,
+#     embedding_generator=embedding_karate_club,
+#     iterations=500,
+#     show_iterations=[500],
+#     show_labels=False,
+#     file_prefix="lesmis"
 
-)
+# )
 
 
 # # or you can you use this function, which generates pdf images and gdf files for iteration specified in show_iterations list
