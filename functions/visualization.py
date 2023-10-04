@@ -33,13 +33,14 @@ def pdf_gdf_after_n_iterations(
         file_prefix (str, optional):File prexix. Defaults to "".
     """
 
-    for i in range(iterations):
-        embs = embedding_generator.run(iterations=1)
+    for i in range(iterations+1):
+        
+        #embs = embedding_generator.run(iterations=1)
 
-            
-        if (i+1) in show_iterations:
+        embs = embedding_generator.get_embeddings()
 
-            
+
+        if i in show_iterations:
 
             # Draw the edges
             for edge in G.edges:
@@ -63,11 +64,11 @@ def pdf_gdf_after_n_iterations(
 
 
             #show iteration number as title of plot
-            plt.title("Iteration: " + str(i+1))
+            plt.title("Iteration: " + str(i))
 
             #save plot to pdf
-            plt.savefig(file_prefix + "_iteration_" + str(i+1) + ".pdf")
-            export_to_gdf(file_prefix + "_iteration_" + str(i+1) + ".gdf",G,embs,has_labels=show_labels)
+            plt.savefig(file_prefix + "_iteration_" + str(i) + ".pdf")
+            #export_to_gdf(file_prefix + "_iteration_" + str(i+1) + ".gdf",G,embs,has_labels=show_labels)
             plt.clf()
 
 
