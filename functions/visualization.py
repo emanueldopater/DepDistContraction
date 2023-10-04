@@ -154,6 +154,8 @@ def visualize_network_gif(G: nx.Graph,
                         node_display_size_base: int = 1,
                         node_display_size_power: int = 1.9,
                         file_prefix : str = "", 
+                        visualization_step : int = 5,
+                        iterations: int = 500,
                         fps : int = 30):
     fig, ax = plt.subplots()
 
@@ -171,7 +173,7 @@ def visualize_network_gif(G: nx.Graph,
         scatter = ax.scatter(node_embeddings[:, 0], node_embeddings[:, 1], color='blue', s=[node_display_size_base + G.degree[node] ** node_display_size_power for node in sorted(G.nodes)])
         for node in G.nodes:
             node_emb = node_embeddings[node]
-            ax.annotate(str(node), (node_emb[0], node_emb[1]), color='red', fontsize=12)
+            #ax.annotate(str(node), (node_emb[0], node_emb[1]), color='red', fontsize=12)
 
         # Draw the edges
         for edge in G.edges:
@@ -179,6 +181,9 @@ def visualize_network_gif(G: nx.Graph,
             x = [node_embeddings[src][0], node_embeddings[tar][0]]
             y = [node_embeddings[src][1], node_embeddings[tar][1]]
             ax.plot(x, y, color='black', linewidth=0.1)
+
+
+        ax.set_title("Iteration: " + str(iteration * visualization_step) + "/" + str(iterations))
 
         return scatter, edges
 
@@ -188,4 +193,4 @@ def visualize_network_gif(G: nx.Graph,
     animation = FuncAnimation(fig, update, frames=num_iterations, interval=animation_fps)
 
     # Show the animation
-    animation.save(file_prefix + "gif_iteration_" , writer='ffmpeg')
+    animation.save(file_prefix , writer='imagemagick')
