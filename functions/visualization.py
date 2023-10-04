@@ -14,7 +14,8 @@ def pdf_gdf_after_n_iterations(
         node_display_size_base: int = 1,
         node_display_size_power: int = 1.9,
         show_labels : bool = False,
-        file_prefix : str = ""
+        file_prefix : str = "",
+        n_step_to_save : int = 5
         ) -> None:
     """
     Function which generates pdf plots and gdf files after specified number of iterations.
@@ -30,9 +31,12 @@ def pdf_gdf_after_n_iterations(
         file_prefix (str, optional):File prexix. Defaults to "".
     """
 
+    embs_to_return = []
     for i in range(iterations):
         embs = embedding_generator.run(iterations=1)
 
+        if (i % n_step_to_save) == 0:
+            embs_to_return.append(embs)
             
         if (i+1) in show_iterations:
 
@@ -66,7 +70,7 @@ def pdf_gdf_after_n_iterations(
             plt.savefig(file_prefix + "_iteration_" + str(i+1) + ".pdf")
             export_to_gdf(file_prefix + "_iteration_" + str(i+1) + ".gdf",G,embs,has_labels=show_labels)
             plt.clf()
-
+    return embs_to_return
 
 
 def visualize_network_animation(
@@ -145,44 +149,43 @@ def visualize_network_animation(
 
 
     
+def visualize_network_gif(G: nx.Graph,
+                        embs_list : list,
+                        node_display_size_base: int = 1,
+                        node_display_size_power: int = 1.9,
+                        file_prefix : str = "", 
+                        fps : int = 30):
+    fig, ax = plt.subplots()
 
-# def visualize_network_gif(G: nx.Graph, 
-#                           embs_list: list, 
-#                           output_path: str, 
-#                           scatter_size_offset: int = 2, 
-#                           scatter_size_degree_power: int = 2, 
-#                           fps : int = 30):
-#     fig, ax = plt.subplots()
+    # Create empty scatter and plot objects
+    scatter = ax.scatter([], [])
+    edges, = ax.plot([], [], color='black', linewidth=0.1)
 
-#     # Create empty scatter and plot objects
-#     scatter = ax.scatter([], [])
-#     edges, = ax.plot([], [], color='black', linewidth=0.1)
+    def update(iteration):
+        ax.clear()
 
-#     def update(iteration):
-#         ax.clear()
+        # Get the node embeddings for the current iteration
+        node_embeddings = embs_list[iteration]
 
-#         # Get the node embeddings for the current iteration
-#         node_embeddings = embs_list[iteration]
+        # Update the scatter plot with the new node positions
+        scatter = ax.scatter(node_embeddings[:, 0], node_embeddings[:, 1], color='blue', s=[node_display_size_base + G.degree[node] ** node_display_size_power for node in sorted(G.nodes)])
+        for node in G.nodes:
+            node_emb = node_embeddings[node]
+            ax.annotate(str(node), (node_emb[0], node_emb[1]), color='red', fontsize=12)
 
-#         # Update the scatter plot with the new node positions
-#         scatter = ax.scatter(node_embeddings[:, 0], node_embeddings[:, 1], color='blue', s=[scatter_size_offset + G.degree[node] ** scatter_size_degree_power for node in sorted(G.nodes)])
-#         for node in G.nodes:
-#             node_emb = node_embeddings[node]
-#             ax.annotate(str(node), (node_emb[0], node_emb[1]), color='red', fontsize=12)
+        # Draw the edges
+        for edge in G.edges:
+            src, tar = edge
+            x = [node_embeddings[src][0], node_embeddings[tar][0]]
+            y = [node_embeddings[src][1], node_embeddings[tar][1]]
+            ax.plot(x, y, color='black', linewidth=0.1)
 
-#         # Draw the edges
-#         for edge in G.edges:
-#             src, tar = edge
-#             x = [node_embeddings[src][0], node_embeddings[tar][0]]
-#             y = [node_embeddings[src][1], node_embeddings[tar][1]]
-#             ax.plot(x, y, color='black', linewidth=0.1)
+        return scatter, edges
 
-#         return scatter, edges
+    # Create the animation
+    num_iterations = len(embs_list)
+    animation_fps = int(1000 / fps)
+    animation = FuncAnimation(fig, update, frames=num_iterations, interval=animation_fps)
 
-#     # Create the animation
-#     num_iterations = len(embs_list)
-#     animation_fps = int(1000 / fps)
-#     animation = FuncAnimation(fig, update, frames=num_iterations, interval=animation_fps)
-
-#     # Show the animation
-#     animation.save(output_path, writer='ffmpeg')
+    # Show the animation
+    animation.save(file_prefix + "gif_iteration_" , writer='ffmpeg')
