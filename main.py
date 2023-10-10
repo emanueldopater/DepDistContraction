@@ -34,26 +34,35 @@ loaded_football = load_net_from_edge_list(path='datasets/edges_football.csv', se
 # )
 
 
-for i in range(3):
+for i in range(6):
 
     embedding_karate_club = DepDist_Contraction(
-    network=loaded_karate_club,
-    embedding_dim=2
+        network=loaded_karate_club,
+        embedding_dim=2,
+        maxDepDist=0.004,
+        maxAccDist=0.02
     )
 
     embedding_lesmis = DepDist_Contraction(
         network=loaded_lemis,
-        embedding_dim=2
+        embedding_dim=2,
+        maxDepDist=0.004,
+        maxAccDist=0.02
     )
 
     embedding_football = DepDist_Contraction(
         network=loaded_football,
-        embedding_dim=2
+        embedding_dim=2,
+        maxDepDist=0.004,
+        maxAccDist=0.02
+
     )
 
     embedding_net_science = DepDist_Contraction(
         network=loaded_net_science,
-        embedding_dim=2
+        embedding_dim=2,
+        maxDepDist=0.004,
+        maxAccDist=0.02
     )
 
     # karate 
@@ -64,7 +73,7 @@ for i in range(3):
         show_iterations=[50,500],
         show_labels=False,
         file_prefix="data/karate_club_" + str(i),
-        node_display_size_base=0.7,
+        node_display_size_base=0.5,
         node_display_size_power=1.5,
         n_step_to_save=5
     )
@@ -72,7 +81,7 @@ for i in range(3):
     visualize_network_gif(
         G=loaded_karate_club,
         embs_list=karate_embs,
-        node_display_size_base=0.7,
+        node_display_size_base=0.5,
         node_display_size_power=1.5,
         file_prefix="data/karate_gif_" + str(i)+ ".gif",
         iterations=500,
@@ -80,78 +89,75 @@ for i in range(3):
         fps=5
     )
 
-    # lesmis
-    lesmis_embs = pdf_gdf_after_n_iterations(
-        G=loaded_lemis,
-        embedding_generator=embedding_lesmis,
-        iterations=500,
-        show_iterations=[50,500],
-        show_labels=False,
-        file_prefix="data/lesmis_" + str(i),
-        node_display_size_base=0.7,
-        node_display_size_power=1.5,
-        n_step_to_save=5
-    )
+    # # lesmis
+    # lesmis_embs = pdf_gdf_after_n_iterations(
+    #     G=loaded_lemis,
+    #     embedding_generator=embedding_lesmis,
+    #     iterations=500,
+    #     show_iterations=[50,500],
+    #     show_labels=False,
+    #     file_prefix="data/lesmis_" + str(i),
+    #     node_display_size_base=0.5,
+    #     node_display_size_power=1.3,
+    #     n_step_to_save=5
+    # )
 
-    visualize_network_gif(
-        G=loaded_lemis,
-        embs_list=lesmis_embs,
-        node_display_size_base=0.7,
-        node_display_size_power=1.5,
-        file_prefix="data/lesmis_gif_" + str(i)+ ".gif",
-        iterations=500,
-        visualization_step=5,
-        fps=5
-    )
+    # visualize_network_gif(
+    #     G=loaded_lemis,
+    #     embs_list=lesmis_embs,
+    #     node_display_size_base=0.5,
+    #     node_display_size_power=1.3,
+    #     file_prefix="data/lesmis_gif_" + str(i)+ ".gif",
+    #     iterations=500,
+    #     visualization_step=5,
+    #     fps=5
+    # )
 
-    # football
-    football_embs = pdf_gdf_after_n_iterations(
-        G=loaded_football,
-        embedding_generator=embedding_football,
-        iterations=500,
-        show_iterations=[50,500],
-        show_labels=False,
-        file_prefix="data/football_" + str(i),
-        node_display_size_base=0.7,
-        node_display_size_power=1.5,
-        n_step_to_save=5
-    )
+    # # football
+    # football_embs = pdf_gdf_after_n_iterations(
+    #     G=loaded_football,
+    #     embedding_generator=embedding_football,
+    #     iterations=500,
+    #     show_iterations=[50,500],
+    #     show_labels=False,
+    #     file_prefix="data/football_" + str(i),
+    #     node_display_size_base=0.1,
+    #     node_display_size_power=1.2,
+    #     n_step_to_save=5
+    # )
 
-    visualize_network_gif(
-        G=loaded_football,
-        embs_list=football_embs,
-        node_display_size_base=0.7,
-        node_display_size_power=1.5,
-        file_prefix="data/football_gif_" + str(i)+ ".gif",
-        iterations=500,
-        visualization_step=5,
-        fps=5
-    )
+    # visualize_network_gif(
+    #     G=loaded_football,
+    #     embs_list=football_embs,
+    #     node_display_size_base=0.1,
+    #     node_display_size_power=1.2,
+    #     file_prefix="data/football_gif_" + str(i)+ ".gif",
+    #     iterations=500,
+    #     visualization_step=5,
+    #     fps=5
+    # )
 
-    # netscience
-    netscience_embs = pdf_gdf_after_n_iterations(
-        G=loaded_net_science,
-        embedding_generator=embedding_net_science,
-        iterations=500,
-        show_iterations=[50,500],
-        show_labels=False,
-        file_prefix="data/netscience_" + str(i),
-        node_display_size_base=0.7,
-        node_display_size_power=1.5,
-        n_step_to_save=5
-    )
+    # # netscience
+    # netscience_embs = pdf_gdf_after_n_iterations(
+    #     G=loaded_net_science,
+    #     embedding_generator=embedding_net_science,
+    #     iterations=500,
+    #     show_iterations=[50,500],
+    #     show_labels=False,
+    #     file_prefix="data/netscience_" + str(i),
+    #     node_display_size_base=0.05,
+    #     node_display_size_power=1.3,
+    #     n_step_to_save=5
+    # )
 
-    visualize_network_gif(
-        G=loaded_net_science,
-        embs_list=netscience_embs,
-        node_display_size_base=0.7,
-        node_display_size_power=1.5,
-        file_prefix="data/netscience_gif_" + str(i)+ ".gif",
-        iterations=500,
-        visualization_step=5,
-        fps=5
-    )
+    # visualize_network_gif(
+    #     G=loaded_net_science,
+    #     embs_list=netscience_embs,
+    #     node_display_size_base=0.05,
+    #     node_display_size_power=1.3,
+    #     file_prefix="data/netscience_gif_" + str(i)+ ".gif",
+    #     iterations=500,
+    #     visualization_step=5,
+    #     fps=5
+    # )
 
-
-
-    

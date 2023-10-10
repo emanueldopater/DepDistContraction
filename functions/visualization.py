@@ -68,8 +68,9 @@ def pdf_gdf_after_n_iterations(
 
             #save plot to pdf
             plt.savefig(file_prefix + "_iteration_" + str(i+1) + ".pdf")
-            export_to_gdf(file_prefix + "_iteration_" + str(i+1) + ".gdf",G,embs,has_labels=show_labels)
+            #export_to_gdf(file_prefix + "_iteration_" + str(i+1) + ".gdf",G,embs,has_labels=show_labels)
             plt.clf()
+
     return embs_to_return
 
 
@@ -194,3 +195,4 @@ def visualize_network_gif(G: nx.Graph,
 
     # Show the animation
     animation.save(file_prefix , writer='imagemagick')
+    plt.clf()

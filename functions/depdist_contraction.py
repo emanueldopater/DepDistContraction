@@ -70,14 +70,18 @@ class DepDist_Base:
 
 
 class DepDist_Contraction(DepDist_Base):
-    def __init__( self, network : nx.Graph, embedding_dim : int) -> None:
+    def __init__( self, 
+                 network : nx.Graph, 
+                 embedding_dim : int, 
+                 maxDepDist: float = 0.002, 
+                 maxAccDist: float = 0.01) -> None:
 
         # calling constructor of base class    
         super().__init__(network, embedding_dim)
 
         ####################################
-        self.maxDepDist = 0.002
-        self.maxAccDist = 0.01
+        self.maxDepDist = maxDepDist
+        self.maxAccDist = maxAccDist
         ####################################
 
     def _choose_node(self,X):
