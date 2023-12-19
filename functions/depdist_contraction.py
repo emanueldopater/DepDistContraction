@@ -37,6 +37,7 @@ class DepDist_Base:
         self.embedding_next_state = self.embedding_current_state.copy()
 
         self.differences = []
+        self.distances = np.zeros(len(network.nodes))
 
 
     def iteration(self) -> None:
@@ -56,7 +57,12 @@ class DepDist_Base:
         for i in range(iterations):
             self.iteration()
 
-            self.differences.append(mean_squared_error(self.embedding_current_state, self.embedding_next_state))
+            #self.differences.append(mean_squared_error(self.embedding_current_state, self.embedding_next_state))
+            index = 0  
+            for embedding_current, embedding_next in zip(self.embedding_current_state,self.embedding_next_state):
+                self.distances[index] += np.linalg.norm(embedding_current - embedding_next)
+                index += 1
+
             self.embedding_current_state = self.embedding_next_state.copy()
 
         # return embeddings
