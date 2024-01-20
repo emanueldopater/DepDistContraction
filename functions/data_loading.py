@@ -4,7 +4,17 @@ import numpy as np
 import networkx as nx
 
 
-def scale_edge_list(df):
+# 
+def scale_edge_list(df: pd.DataFrame) -> np.ndarray:
+    """
+    Reindex the nodes in edge list to start from 0 to better index as arrays. 
+
+    Args:
+        df (pd.DataFrame): _description_
+
+    Returns:
+        np.array: Reindexed edge list.
+    """
 
     source_targer_values = df.iloc[:,:2].values
     edge_weights = df.iloc[:,2].values.reshape(-1,1)
@@ -25,7 +35,26 @@ def scale_edge_list(df):
 
 
 #load edgelist
-def load_net_from_edge_list(path, sep = ',', header = None, names = ['source', 'target', 'weight'], has_edge_weights = True):
+def load_net_from_edge_list(path:str, 
+                            sep: str = ',', 
+                            header = None, 
+                            names:list[str] = ['source', 'target', 'weight'], 
+                            has_edge_weights: bool = True):
+    """
+    Load edge list 
+
+    Args:
+        path (str): Path to edge list file.
+        sep (str, optional): Separator in csv file. 
+        header (_type_, optional): Default is None because our csv file don't have headers. 
+        names (list[str], optional): Name of columns for indexing edge weights if there are not present. 
+        For our examples, don't change it.
+        has_edge_weights (bool, optional): Whether edge list has edge weight. If yes, they are on 3-th place. 
+        ('source', 'target', 'weight')
+
+    Returns:
+        nx.Graph: Constructed nx.Graph. 
+    """
     if has_edge_weights:
         df = pd.read_csv(path, sep = sep, header = header, names = names)
     else:
@@ -39,12 +68,10 @@ def load_net_from_edge_list(path, sep = ',', header = None, names = ['source', '
 
 
     for edge in scaled_edge_list:
-        #print(edge)
         source = int(edge[0])
         target = int(edge[1])
 
         weight = edge[2]
-
 
         G.add_edge(source, target, weight = weight)
     
